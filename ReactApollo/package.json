@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "apollo-client": "^0.8.2",
+    "google-map-react": "^0.14.5",
     "graphql-tag": "^1.2.4",
     "react": "^15.2.1",
     "react-apollo": "^0.10.0",
