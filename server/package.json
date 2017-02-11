@@ -35,6 +35,9 @@
     "cors": "^2.7.1",
     "express": "^4.14.0",
     "express-graphql": "^0.5.3",
-    "graphql": "^0.6.2"
+    "graphql": "^0.6.2",
+    "yelp": "^1.0.2",
+    "yelp-api-v3": "^1.5.0",
+    "yelp-fusion": "^1.0.3"
   }
 }
