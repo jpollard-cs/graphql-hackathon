@@ -7,6 +7,7 @@ import './App.css';
 
 import BookSearch from './BookSearch';
 import BookDetails from './BookDetails';
+import GoogleMap from 'google-map-react';
 
 const Layout = ({ children }) => (
   <div>{ children }</div>
@@ -14,6 +15,7 @@ const Layout = ({ children }) => (
 
 // Replace this Uri with your GraphQL server Uri
 const serverUri = 'http://localhost:5000/graphql';
+
 
 class App extends Component {
   constructor(...args) {
@@ -34,13 +36,22 @@ class App extends Component {
   render() {
     return (
       <ApolloProvider client={this.client}>
-        <Router history={browserHistory}>
-          <Route path="/" component={Layout}>
-            <IndexRoute component={BookSearch} />
-            <Route path="/details/:bookId" component={BookDetails} />
-          </Route>
-        </Router>
-      </ApolloProvider>
+        <div >
+          <GoogleMap
+            style={{
+              margin: 0,
+              padding: 0,
+              flex: 1
+            }}
+            bootstrapURLKeys={{
+              key: 'AIzaSyA877dUOx8E9Pt0wAaFUjULuKUGEiVJ8RM',
+              language: 'en'
+            }}
+            defaultCenter={{lat: 59.938043, lng: 30.337157}}
+            defaultZoom={9}
+          />
+        </div>
+    </ApolloProvider>
     );
   }
 }
