@@ -166,7 +166,7 @@ class Wrapper extends Component {
   handlePlumberClick (id) {
     this.setState({
       id: id,
-      open: !this.state.open
+      open: true
     })
   }
 
