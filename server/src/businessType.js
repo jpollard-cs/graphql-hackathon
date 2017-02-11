@@ -18,6 +18,25 @@ export const coordinateType = new GraphQLObjectType({
 });
 
 
+export const reviewType = new GraphQLObjectType({
+    name: 'Review',
+    description: 'review',
+    fields: () => ({
+        text: {type: GraphQLString},
+        rating: {type: GraphQLInt}
+    })
+});
+
+export const reviewsType = new GraphQLObjectType({
+    name: 'Reviews',
+    description: 'reviews',
+    fields: () => ({
+        total: {type: GraphQLInt},
+        reviews: {type: new GraphQLList(reviewType), resolve: (reviews) => reviews.reviews}
+    })
+});
+
+
 export const businessType = new GraphQLObjectType({
     name: 'Business',
     description: 'Your friendly neighborhood Yelp Business.',
@@ -28,6 +47,14 @@ export const businessType = new GraphQLObjectType({
         imageUrl: {type: GraphQLString, resolve: (business) => business.image_url},
         rating: {type: GraphQLInt},
         coordinates: {type: coordinateType, resolve: (business) => business.coordinates},
+    })
+});
+
+export const reviewsInputType = new GraphQLInputObjectType({
+    name: 'ReviewsInput',
+    description: 'reviews input',
+    fields: () => ({
+        id: {type: GraphQLString}
     })
 });
 
