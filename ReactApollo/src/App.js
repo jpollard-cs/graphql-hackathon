@@ -15,11 +15,19 @@ const Layout = ({ children }) => (
 const serverUri = 'http://localhost:5000/graphql';
 
 const plumber = {
+  position: 'relative',
   background: 'url(./src/img/plumber.png)',
   backgroundSize: 'contain',
   width: '30px',
   height: '30px'
 };
+
+const plumberName = {
+  position: 'absolute',
+  top: '-30px',
+  left: 0,
+  fontSize: '14px'
+}
 
 class Plumber extends Component {
   static propTypes = {
@@ -30,7 +38,7 @@ class Plumber extends Component {
     return (
       <div>
         <div style={plumber}>
-          {this.props.text}
+          <p style={plumberName}>{this.props.text}</p>
         </div>
       </div>
     );
@@ -57,59 +65,67 @@ class Drawer extends Component {
           background: 'mediumorchid'
         }
       }>
+        <PlumberDetails id={this.props.id} />
       </div>
     )
   }
 }
 
 const PlumberDetails = graphql(gql`
-  query BookDetailsQuery($bookId: String!) {
-    bookByID(id: $bookId) {
+   query BookSearchQuery($id: String!) {
+    business(input: {
+      id: $id
+    }){
       id
-      title
-      image
-      description
-      author {
-        id
-        name
-      }
     }
   }
 `, {
   // These params come from React Router's URL pattern
-  options: ({ bookId }) => {
-    return { variables: { bookId } }
+  options: ({ id }) => {
+    return { variables: { id: id } }
   },
-})(({ data: { loading, bookByID } }) => {
-  if (loading || !bookByID) {
+})(({ data: { loading, plumber } }) => {
+  if (loading || !plumber) {
     return <div>Loading</div>;
   } else {
     return (
       <div>
-        <h3>{bookByID.title}</h3>
-        <p>By {bookByID.author.name}</p>
-        <p>{bookByID.description}</p>
-        <img src={bookByID.image} role="presentation"/>
+        <h3>{plumber.name}</h3>
+        <h4>Reviews</h4>
+        <ul>
+        { plumber.reviews.map(({ text, rating }) => {
+          <li>{text} <b>{rating}</b></li>
+        })}
+        </ul>        
       </div>
     );
   }
 });
 
 const MapContainer = graphql(gql`
-  query BookSearchQuery($keyword: String!) {
-    bookSearch(keyword: $keyword) {
-      id
-      image
-      title
-      author {
-        id
-        name
-      }
+  query BookSearchQuery {
+    businesses(input: {
+      term: "plumber",
+      latitude: 42.360,
+      longitude: -71.3,
+      limit: 10
+    }){
+      id,
+      coordinates {
+        latitude
+        longitude
+      },
+      name
     }
   }
 `, {
   options: ({ keyword }) => ({ variables: { keyword } }),
-})(({ data: { loading, bookSearch }, onClick }) => {
+})((props) => {
+
+  const { data: { loading, businesses }, onClick } = props;
+
+  console.log(props);
+
   return (
     <GoogleMap
       style={null}
@@ -118,11 +134,11 @@ const MapContainer = graphql(gql`
         language: 'en'
       }}
       defaultCenter={{lat: 42.360, lng: -71.0}}
-      defaultZoom={9}
+      defaultZoom={11}
       onChildClick={onClick}
     >
-      {loading ? [] : bookSearch.map((book) => {
-        return <Plumber key={book.id} lat={42.955413} lng={-71.337844} text="blah" />
+      {loading ? [] : businesses.map(({ id, coordinates, name }) => {
+        return <Plumber key={id} lat={coordinates.latitude} lng={coordinates.longitude} text={name} />
       })}
     </GoogleMap>
   )
