@@ -60,9 +60,10 @@ class Drawer extends Component {
           position: 'absolute',
           top: 0,
           right: 0,
-          width: '200px',
+          width: '40vw',
           height: '100vh',
-          background: 'mediumorchid'
+          padding: '30px',
+          background: 'floralwhite'
         }
       }>
         <PlumberDetails id={this.props.id} />
@@ -72,11 +73,14 @@ class Drawer extends Component {
 }
 
 const PlumberDetails = graphql(gql`
-   query BookSearchQuery($id: String!) {
-    business(input: {
+   query ReviewsQuery($id: String!) {
+    reviews(input: {
       id: $id
     }){
-      id
+      reviews{
+        text,
+        rating
+      }
     }
   }
 `, {
@@ -84,17 +88,19 @@ const PlumberDetails = graphql(gql`
   options: ({ id }) => {
     return { variables: { id: id } }
   },
-})(({ data: { loading, plumber } }) => {
-  if (loading || !plumber) {
+})(({ data }) => {
+  const { loading, reviews } = data;
+  console.log(data);
+
+  if (loading) {
     return <div>Loading</div>;
   } else {
     return (
       <div>
-        <h3>{plumber.name}</h3>
         <h4>Reviews</h4>
-        <ul>
-        { plumber.reviews.map(({ text, rating }) => {
-          <li>{text} <b>{rating}</b></li>
+        <ul style={{listStyle: 'none'}}>
+        { reviews.reviews.map(({ text, rating }) => {
+          return <li style={{marginBottom: '10px'}}><b>Rating:</b> {rating}<br />{text}</li>
         })}
         </ul>        
       </div>
