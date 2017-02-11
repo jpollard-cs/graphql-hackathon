@@ -1,98 +1,50 @@
 import {
   GraphQLSchema,
   GraphQLObjectType,
+  GraphQLInputObjectType,
   GraphQLString,
   GraphQLList,
 } from 'graphql';
-import {authors, books} from './db';
-import authorType from './authorType';
-import {bookType, bookInputType} from './bookType';
+
+import { businessType, searchInputType } from './businessType';
+import Yelp from 'yelp-fusion';
+import * as YelpConstants from './constants/yelp';
+
+const formatObjectForPrinting = (o) => JSON.stringify(o, null, 2);
 
 const rootFields = {
-  authors: {
-    type: new GraphQLList(authorType),
-    resolve: _ => {
-      return authors;
-    }
-  },
-  books: {
-    type: new GraphQLList(bookType),
-    resolve: _ => {
-      // Resolve functions can return promises
-      return Promise.resolve(books);
-    }
-  },
-  bookByID: {
-    type: bookType,
+  businesses: {
+    type: new GraphQLList(businessType),
     args: {
-      id: {
-        type: GraphQLString,
+      input: {
+        type: searchInputType
       }
     },
-    resolve: (object, {id}, context, info) => {
-      return books.find(book => `book-${book.id}` == id);
-    }
-  },
-  bookSearch: {
-    type: new GraphQLList(bookType),
-    args: {
-      keyword: {
-        type: GraphQLString,
-      }
-    },
-    resolve: (object, {keyword}, context, info) => {
-      return books.filter(book => book.title.includes(keyword));
-    }
-  },
-  secret: {
-    type: GraphQLString,
-    resolve: (object, args, context, {rootValue}) => {
-      const user = rootValue.user;
-      if(!user) {
-        return 'only authorized users can know the secret';
-      }
-      if(user.name === 'admin' && user.pass === '123') {
-        return 'howdy admin';
-      }
-      return 'who are you?';
+    resolve: (_, request)  => {
+      return new Promise((resolve, reject) => {
+          Yelp.accessToken(YelpConstants.APP_ID, YelpConstants.APP_SECRET).then(response => {
+              const client = Yelp.client(response.jsonBody.access_token);
+              console.log(formatObjectForPrinting(request));
+              client.search(request.input).then(response => {
+                  console.log(formatObjectForPrinting(response.jsonBody));
+                  resolve(response.jsonBody.businesses);
+              }).catch(e => console.log(formatObjectForPrinting(e)));
+          }).catch(e => {
+              console.log(formatObjectForPrinting(e));
+              reject(e);
+          });
+      });
     }
   }
 };
-
-// Single "viewer" object for Relay root query compatibility
-const Viewer = new GraphQLObjectType({
-  name: 'Viewer',
-  fields: rootFields,
-});
 
 const schema = new GraphQLSchema({
   query: new GraphQLObjectType({
     name: 'QueryRoot',
     fields: {
-      viewer: {
-        type: Viewer,
-        resolve: () => ({}),
-      },
-      ...rootFields,
+      ...rootFields
     }
-  }),
-  mutation: new GraphQLObjectType({
-    name: 'MutationRoot',
-    fields: {
-      addBook: {
-        type: bookType,
-        args: {
-          book: {
-            type: bookInputType,
-          }
-        },
-        resolve: (object, {book}) => {
-          books.push(book);
-          return book;
-        }
-      }
-    }
-  }),
+  })
 });
 
 export default schema;

@@ -1,49 +1,37 @@
 schema {
   query: QueryRoot
-  mutation: MutationRoot
+  subscription: SubscriptionRoot
 }
 
-type Author {
+type Business {
   id: String
   name: String
-  image: String
-  books: [Book]
+  imageUrl: String
+  rating: Int
+  location: Location
 }
 
-type Book {
-  id: String
-  title: String
-  image: String
-  authorId: String
-  description: String
-  author: Author
+type Location {
+    coordinate: Coordinate
 }
 
-input BookInput {
-  id: String
-  title: String
-  image: String
-  description: String
-  authorId: String
+type Coordinate {
+    latitude: Float,
+    longitude: Float
 }
 
-type MutationRoot {
-  addBook(book: BookInput): Book
+input SearchInput {
+  term: String
+  location: String
+  limit: Int
+  latitude: Float
+  longitude: Float
 }
 
 type QueryRoot {
-  viewer: Viewer
-  authors: [Author]
-  books: [Book]
-  bookByID(id: String): Book
-  bookSearch(keyword: String): [Book]
-  secret: String
+  Businesses(input: SearchInput): [Business]
 }
 
-type Viewer {
-  authors: [Author]
-  books: [Book]
-  bookByID(id: String): Book
-  bookSearch(keyword: String): [Book]
-  secret: String
+type SubscriptionRoot {
+
 }
