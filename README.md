@@ -1,5 +1,5 @@
 # unclogged.io
-Repo for starter kits and samples for the GraphQL Community Hackathon
+an app to help you find plumbers (or other local services) around you!
 
 Prereqs: NodeJS v4+
 
