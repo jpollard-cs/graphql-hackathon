@@ -1,4 +1,4 @@
-# graphql-hackathon
+# unclogged.io
 Repo for starter kits and samples for the GraphQL Community Hackathon
 
 Prereqs: NodeJS v4+
